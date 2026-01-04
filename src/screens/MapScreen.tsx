@@ -14,6 +14,7 @@ import { INITIAL_REGION } from '../constant';
 import { useScreenReady } from '../hooks/useScreenReady';
 import LazyLoader from '../components/LazyLoad';
 import Container from '../components/Container';
+import { requestLocationPermission } from '../Permissions';
 
 const MapScreen = () => {
   const isReady = useScreenReady();
@@ -24,23 +25,15 @@ const MapScreen = () => {
   );
 
   const handleMyLocationPress = useCallback(async () => {
-    const locationPermision = await Geolocation.requestAuthorization(
-      'whenInUse',
-    );
+    const hasPermission = await requestLocationPermission();
 
-    if (locationPermision !== 'granted') {
+    if (!hasPermission) {
       Alert.alert(
         'Permission Denied',
-        'Please allow location access in settings.',
+        'Location access is required to use this feature. Please enable it in the app settings.',
         [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-          {
-            text: 'Open Settings',
-            onPress: () => Linking.openSettings(),
-          },
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Open Settings', onPress: () => Linking.openSettings() },
         ],
       );
       return;
